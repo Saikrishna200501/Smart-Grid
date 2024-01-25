@@ -14,7 +14,7 @@ CORS(app)
 from twilio.rest import Client
 import random
 account_sid = 'AC2728d4bee9c01e88416c7e42f28e69ba'
-auth_token = 'c7129f19f6060a768cf33743967e2cad'
+auth_token = 'e58ea4fef986e035d2e559900f35cc34'
 twilio_phone_number = '+12058589973'
 client = Client(account_sid, auth_token)
 otp=0
