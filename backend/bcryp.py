@@ -7,7 +7,7 @@ print("Hashed String:", hashed_string.decode('utf-8'))
 
 client = MongoClient('mongodb://localhost:27017/')
 db = client['PS']
-users_collection = db['toplevel']
+users_collection = db['Power_System_Operators']
 
 # Store the username and hashed password in MongoDB
 users_collection.insert_one({

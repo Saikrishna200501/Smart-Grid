@@ -75,12 +75,12 @@ def login():
     ip_address = request.remote_addr
     user_agent1 = get_user_agent_info(user_agent)
 
-    collections = ['toplevel', 'consumers', 'middleman']
+    collections = ['Power_System_Operators', 'consumers', 'Data_Analysts']
     for collection_name in collections:
         users_collection = db[collection_name]
         user = users_collection.find_one({'username': username})
         if user and bcrypt.check_password_hash(user['password'], password):
-            access_token = create_access_token(identity=username, expires_delta=timedelta(hours=1))
+            access_token = create_access_token(identity=username, expires_delta=timedelta(hours=8))
             correct_users = db['correct_users']
             correct_user_data = {'ip address':ip_address,'username': username,'useragent': f'Logged in through {get_user_agent_info(user_agent)}','login_time':now,'Latitude':latitude,'Longitude':longitude}
             correct_users.insert_one(correct_user_data)

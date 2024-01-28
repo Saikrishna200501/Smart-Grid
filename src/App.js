@@ -7,7 +7,6 @@ import Navbar from './Navbar'
 import Organization from './Toplvl';
 import Login from './Login';
 import About from './About';
-import Footer from './Footer';
 import Middleman from './Middleman';
 import Consumer from './Consumer';
 import PrivateRoutes from './PrivateRoute';
@@ -36,16 +35,15 @@ return (
             <Route path='/About' element={<About />} />
             <Route element={<Login setIsLoggedIn={setIsLoggedIn} />} path="/login" exact />
             <Route element={<PrivateRoutes />}>
-              <Route element={checkRole('toplevel') ? <Organization /> : <Navigate to="/login" />} path="/toplevel" exact />
-              <Route element={checkRole('middleman') ? <Middleman/> : <Navigate to="/login" />} path='/middleman' exact/>
+              <Route element={checkRole('Power_System_Operators') ? <Organization /> : <Navigate to="/login" />} path="/Power_System_Operators" exact />
+              <Route element={checkRole('Data_Analysts') ? <Middleman/> : <Navigate to="/login" />} path='/Data_Analysts' exact/>
               <Route element={checkRole('consumers') ? <Consumer/> : <Navigate to="/login" />} path='/consumers' exact/>
-              <Route element={checkRole('toplevel') ? <Register/> : <Navigate to="/login" />} path='/register' exact/>
+              <Route element={checkRole('Power_System_Operators') ? <Register/> : <Navigate to="/login" />} path='/register' exact/>
             </Route>
 
             <Route path='*' element={<Error/>}></Route>
           </Routes>
       </Router>
-        <Footer></Footer>
       <ToastContainer
         position="top-center"
         autoClose={2000}
