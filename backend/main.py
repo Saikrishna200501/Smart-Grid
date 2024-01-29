@@ -14,7 +14,7 @@ CORS(app)
 from twilio.rest import Client
 import random
 account_sid = 'AC2728d4bee9c01e88416c7e42f28e69ba'
-auth_token = 'e58ea4fef986e035d2e559900f35cc34'
+auth_token = '6ae1328945aac09d445907c8ddf53f53'
 twilio_phone_number = '+12058589973'
 client = Client(account_sid, auth_token)
 otp=0
@@ -220,16 +220,12 @@ def add_time():
         return jsonify({'error': str(e)}), 500
 
 
-
 from web3 import Web3
 import json
 from web3.middleware import geth_poa_middleware
 
-# Create an instance of the Web3 class
 w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
-# Add the Geth PoA middleware
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-# Set the default account
 w3.eth.default_account = "0xD1E5934dAc953FeD906CB81e52Aac4A95376161D"
 abi = json.loads('[{"inputs":[{"internalType":"string","name":"element","type":"string"}],"name":"battery","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"battery_data","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"element","type":"string"}],"name":"genset","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"genset_data","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"element","type":"string"}],"name":"grid","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"grid_data","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"element","type":"string"}],"name":"load","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"load_data","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"element","type":"string"}],"name":"renewable","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"renewable_data","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"show_battery","outputs":[{"internalType":"string[]","name":"","type":"string[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"show_genset","outputs":[{"internalType":"string[]","name":"","type":"string[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"show_grid","outputs":[{"internalType":"string[]","name":"","type":"string[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"show_load","outputs":[{"internalType":"string[]","name":"","type":"string[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"show_renewable","outputs":[{"internalType":"string[]","name":"","type":"string[]"}],"stateMutability":"view","type":"function"}]')
 address = Web3.to_checksum_address("0xfa65F89692f2CCa30E1Fa36e468637997a997553")
@@ -248,34 +244,32 @@ def generate_bar_graph():
     call=contract.functions.show_load().call()
     for i in range(len(call)):
         call[i]=int(call[i])
-    # print(call)
-    time_array=call
-    start = len(time_array) - (24 * 16)
+    start = len(call) - (24 * 15)
     if start < 0:
         start = 0
-
     day_wise_load = []
-    s = start
-    for i in range(start, len(time_array)):
-        if (i - start) % 24 == 0 and i != start:
-            daily_sum = sum(time_array[s:i])
-            day_wise_load.append(daily_sum)
-            s = i
-    
+    for day in range(start // 24 + 1, start // 24 + 16):
+        start_idx = (day - 1) * 24
+        end_idx = day * 24
+        row =[int(value) for value in call[start_idx:end_idx]]
+        # print(row)
+        row_sum = sum(row[0:])
+        day_wise_load.append(row_sum)
+    bar_width = 0.6
+    plt.figure(figsize=(14, 3))
+    plt.bar(range(1,len(day_wise_load)+1), day_wise_load,width=bar_width,color='#FF4F4F')
+    for i, v in enumerate(day_wise_load):
+        plt.text(i + 1, v, str(v), ha='center', va='bottom')
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)    
     x_labels = list(range(1, len(day_wise_load) + 1))
     plt.xlabel('Days')
     plt.ylabel('Load')
-    plt.ylim(4000,10000)
-    for i, v in enumerate(day_wise_load):
-        plt.text(i + 1, v, str(v), ha='center', va='bottom')
+    plt.ylim(4000,9000)
+    plt.tight_layout()
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.xticks(range(1, len(day_wise_load) + 1), x_labels)
-    plt.gca().spines['right'].set_visible(False)
-    plt.gca().spines['top'].set_visible(False)
-    bar_width = 0.6
-    # plt.figure(figsize=(15, 3))
-    plt.bar(range(1,len(day_wise_load)+1), day_wise_load,width=bar_width,color='#FF4F4F')
-    
+
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
     buffer.seek(0)
@@ -360,7 +354,6 @@ def generate_renewable_plot():
     if time:
         return generate_plot(range(0,len(result[0:int(time)])), result[0:int(time)])
     return jsonify({'error': 'Invalid time parameter'}), 400
-
 @app.route('/load')
 def generate_load_plot():
     a=contract.functions.show_load().call()
