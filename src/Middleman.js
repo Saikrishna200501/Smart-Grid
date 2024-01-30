@@ -12,7 +12,7 @@ import { FaHouseChimneyCrack } from "react-icons/fa6";
 import UseAnimations from "react-useanimations";
 import arrowUp from 'react-useanimations/lib/arrowUp';
 import Lottie from 'lottie-react';
-import animationData from './analyst.json';
+import animationData from './images/analyst.json';
 
 const Middleman = () => {
   const [showButton, setShowButton] = useState(false);
